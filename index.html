@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lancer un appel Asterisk</title>
+</head>
+<body>
+  <h2>Interface Web - Appel Asterisk</h2>
+
+  <form id="callForm">
+    From: <input type="text" name="from" id="from"><br>
+    To: <input type="text" name="to" id="to"><br>
+    <button type="submit">Lancer appel</button>
+  </form>
+
+  <p id="result"></p>
+
+  <script>
+    document.getElementById('callForm').onsubmit = async function(e) {
+      e.preventDefault();
+
+      const depuis = document.getElementById('from').value;
+      const vers = document.getElementById('to').value;
+
+      const resultElement = document.getElementById('result');
+      resultElement.textContent = 'Envoi de l\'appel...';
+
+      try {
+        const response = await fetch('http://localhost:5000/call', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: depuis,
+            to: vers
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          resultElement.textContent = '✅ Appel lancé avec succès !';
+          console.log(data);
+        } else {
+          resultElement.textContent = '❌ Erreur : ' + (data.error || 'inconnue');
+        }
+
+      } catch (err) {
+        resultElement.textContent = '❌ Erreur de connexion au serveur : ' + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
